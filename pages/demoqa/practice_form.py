@@ -1,7 +1,7 @@
 """ logica para controlar el formulario de control de practicas"""
 from selenium.webdriver.common.keys import Keys
 
-from test_base_page import BasePage
+from pages.base_page import BasePage
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -23,19 +23,14 @@ class PracticeForm(BasePage):
     __DATE_LOCATOR = (By.ID,'dateOfBirthInput')
     __FILE_LOCATOR = (By.ID, 'uploadPicture')
 
-    __STATE_ITEM_LOCATOR_XPATH = "//*[@id='state']//*[contains(@class,'-option') and text()='{0}']"
-    __STATE_LOCATOR = (By.ID, 'state')
+    __STATE_CITY_XPATH = "//*[@id='{0}']//*[contains(@class, '-option') and text()='{1}']"
 
-    __CITY_ITEM_LOCATOR_XPATH = "//*[@id='city']//*[contains(@class,'-option') and text()='{0}']"
-    __CITY_LOCATOR = (By.ID, 'city')
-
-    __STATE_VALUE_LOCATOR = (By.XPATH, "//*[@id='state']//*contains(@class,'-singleValue')")
-    __CITY_VALUE_LOCATOR = (By.XPATH, "//*[@id='city']//*contains(@class,'-singleValue')")
+    __STATE_CITY_VAL_XPATH = "//*[@id='{0}']//*[contains(@class, '-singleValue')]"
 
     def __init__(self, driver: WebDriver, timeout: int = 20):
         super().__init__(driver,timeout,self.__URL)
 
-    def wait_until_loaded(self):
+    def esperar_hasta_que_se_cargue_elemento(self):
         """
         Método que verifica que se cumpla la condicion suministrada
         :return:
@@ -81,9 +76,8 @@ class PracticeForm(BasePage):
 
     def set_hobbies(self, value:str):
         tmp_xpath = self.__HOBBIES_LOCATOR_XPATH.format(value)
-        print (tmp_xpath)
-        tmp_locator = (By.CSS_SELECTOR, tmp_xpath)
-        element = self._wait.until(EC.element_to_be_clickable(tmp_locator))
+        tmp_loc = (By.XPATH, tmp_xpath)
+        element = self._wait.until(EC.element_to_be_clickable(tmp_loc))
         element.click()
 
     def get_date_of_birth(self):
@@ -100,45 +94,39 @@ class PracticeForm(BasePage):
         element = self._wait.until(EC.element_to_be_clickable(self.__FILE_LOCATOR))
         self.__set_input_value(element,value)
 
-    def set_state(self, value: str):
-        """
-        Metodo para expandir el dropdown
-        :param value:
-        :return:
-        """
-        # Paso 1: Expandir el dropdown
-        element = self._wait.until(EC.element_to_be_clickable(self.__STATE_LOCATOR))
+    def __get_dropdown_value(self, e_id):
+        value_loc = (By.XPATH, self.__STATE_CITY_VAL_XPATH.format(e_id))
+        item = self._wait.until(EC.visibility_of_element_located(value_loc))
+        return item.text
+
+    def __select_dropdown(self, e_id, value):
+        # 1. Click dropdown div
+        div_loc = (By.ID, e_id)
+        element = self._wait.until(EC.element_to_be_clickable(div_loc))
         element.click()
-        # Paso 2: Seleccionar el valor del dropdown
 
-        tmp_itemLocator = (By.XPATH, self.__STATE_ITEM_LOCATOR_XPATH.format(value))
-        item = self._wait.until(EC.element_to_be_clickable(tmp_itemLocator))
+        # 2. Wait for item
+        opt_loc = (By.XPATH, self.__STATE_CITY_XPATH.format(e_id, value))
+        item = self._wait.until(EC.element_to_be_clickable(opt_loc))
 
-        # Paso 3: Hacer click en el item
+        # 3. Click item
         item.click()
 
-    def get_state(self):
-        element = self._wait.until(EC.element_to_be_clickable(self.__STATE_VALUE_LOCATOR))
-        return element.text
+    def get_state(self) -> str:
+        """Return selected state"""
+        return self.__get_dropdown_value('state')
+
+    def set_state(self, value: str):
+        """Set state dropdown"""
+        self.__select_dropdown('state', value)
+
+    def get_city(self) -> str:
+        """Return selected city"""
+        return self.__get_dropdown_value('city')
 
     def set_city(self, value: str):
-        """
-        Metodo para expandir el dropdown
-        :param value:
-        :return:
-        """
-        # Paso 1: Expandir el dropdown
-        element = self._wait.until(EC.element_to_be_clickable(self.__CITY_LOCATOR))
-        element.click()
-        # Paso 2: Seleccionar el valor del dropdown
-
-        tmp_itemLocator = (By.XPATH, self.__CITY_ITEM_LOCATOR_XPATH)
-        item = self._wait.until(EC.element_to_be_clickable(tmp_itemLocator))
-        item.click()
-
-    def get_city(self):
-        element = self._wait.until(EC.element_to_be_clickable(self.__CITY_VALUE_LOCATOR))
-        return element.text
+        """Set state dropdown"""
+        self.__select_dropdown('city', value)
 # ------------------------- Genericos -----------------------------------------------
 
     def __get_input_value(self, locator):

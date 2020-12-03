@@ -20,15 +20,17 @@ class BasePage:
         self._timeout = timeout
         self._url = url
         self._wait = WebDriverWait(driver, timeout)
+        self._tab_navegador_actual = None
 
-    def open(self):
+    def abrir_pagina_web(self):
         """
         Abre la pagina web indicada en el parametro de entrada
         :return:
         """
         self._driver.get(self._url)
+        self._tab_navegador_actual = self._driver.current_window_handle
 
-    def close(self):
+    def cerrar_navegador(self):
         """
         Cierra el navegador a traves del webdriver
         :return:
@@ -54,14 +56,14 @@ class BasePage:
         else:
             raise ValueError(f"Valor invalido para timeout {newTimeout}")
 
-    def refresh(self):
+    def refrescar_pagina(self):
         """
         Método que refresca la pagina actual
         :return:
         """
         self._driver.refresh()
 
-    def wait_until_loaded(self):
+    def esperar_hasta_que_se_cargue_elemento(self):
         """
         Método que verifica que el tag body se carge antes de continuar
         :return:
@@ -70,3 +72,6 @@ class BasePage:
 
     def set_value_attribute(self, element, value):
         self._driver.execute_script("arguments[0].value = '{value}'", element)
+
+    def moverse_a_tab_principal(self):
+        self._driver.switch_to.window(self._tab_navegador_actual)
