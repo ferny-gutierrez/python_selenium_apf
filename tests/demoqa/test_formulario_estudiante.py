@@ -6,13 +6,15 @@ from common.webdriver_factory import create_driver_instance, ROOT_DIR
 from pages.demoqa.practice_form import PracticeForm
 
 DATOS_FORMULARIO = [
-    ('Sandra', 'Gutierrez', 'ferny.gutierrez@gmail.com', 'Female','3003656382'),
-    ('Leonardo', 'Chaves', 'leonardoch2@gmail.com', 'Male', '3152258541')
+    ('Sandra', 'Gutierrez', 'ferny.gutierrez@gmail.com', 'Female','3003656382',
+     'Sports', ['Maths'], 'CRA 17 # 136 - 73',"Nov 30 2020"),
+    ('Leonardo', 'Chaves', 'leonardoch2@gmail.com', 'Male', '3152258541',
+     'Sports', ['Maths','Computer Science'], 'CRA 12 # 34 - 34', "Dic 30 2020")
 ]
 
 
-@pytest.mark.parametrize("nombre, apellido, email, genero, celular", DATOS_FORMULARIO)
-def test_uno(nombre, apellido, email, genero, celular):
+@pytest.mark.parametrize("nombre, apellido, email, genero, celular, hobbies, subjects, address, birth", DATOS_FORMULARIO)
+def test_uno(nombre, apellido, email, genero, celular, hobbies, subjects, address, birth):
     driver = create_driver_instance('chrome')
     driver.get('chrome://settings/')
     driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.75);')
@@ -24,11 +26,11 @@ def test_uno(nombre, apellido, email, genero, celular):
     page.set_email(email)
     page.set_gender(genero)
     page.set_mobile(celular)
-    page.set_hobbies('Sports')
-    page.set_subjects('Maths')
-    page.set_subjects('Computer Science')
-    page.set_current_address('CRA 17 # 136 - 73')
-    page.set_date_of_birth("Nov 30 2020")
+    page.set_hobbies(hobbies)
+    for subject in subjects:
+        page.set_subjects(subject)
+    page.set_current_address(address)
+    page.set_date_of_birth(birth)
     file_path = os.path.join(ROOT_DIR, '.gitignore')
     # page.set_file("C:\\Users\\Usuario\\Documents\\bootcamptest\\2020_Python_Selenium-main\\.gitignore")
     # page.set_state('NCR')
