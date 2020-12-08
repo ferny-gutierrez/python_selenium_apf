@@ -92,7 +92,7 @@ class PracticeForm(BasePage):
 
     def set_file(self, value):
         element = self._wait.until(EC.element_to_be_clickable(self.__FILE_LOCATOR))
-        self.__set_input_value(element,value)
+        self.__set_input_value(self.__FILE_LOCATOR,value)
 
     def __get_dropdown_value(self, e_id):
         value_loc = (By.XPATH, self.__STATE_CITY_VAL_XPATH.format(e_id))
